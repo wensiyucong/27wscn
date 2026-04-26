@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文思导航 - 全球与国内热门网站集合</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1><i class="fas fa-compass"></i> 文思导航</h1>
+                    <p class="tagline">全球视野，本土精选</p>
+                </div>
+                <div class="nav-links">
+                    <a href="#global" class="active"><i class="fas fa-globe"></i> 全球热门</a>
+                    <a href="#domestic"><i class="fas fa-flag"></i> 国内精选</a>
+                    <a href="#ai"><i class="fas fa-robot"></i> AI工具</a>
+                    <a href="#tools"><i class="fas fa-tools"></i> 实用工具</a>
+                    <a href="#daily"><i class="fas fa-calendar-day"></i> 每日必看</a>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="搜索网站或关键词...">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main>
+        <!-- 全局搜索和快捷访问 -->
+        <section class="quick-access">
+            <div class="container">
+                <h2><i class="fas fa-bolt"></i> 快捷访问</h2>
+                <div class="quick-grid">
+                    <a href="https://www.google.com" target="_blank" class="quick-item">
+                        <i class="fab fa-google"></i>
+                        <span>Google</span>
+                    </a>
+                    <a href="https://www.youtube.com" target="_blank" class="quick-item">
+                        <i class="fab fa-youtube"></i>
+                        <span>YouTube</span>
+                    </a>
+                    <a href="https://github.com" target="_blank" class="quick-item">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="https://chat.openai.com" target="_blank" class="quick-item">
+                        <i class="fas fa-robot"></i>
+                        <span>ChatGPT</span>
+                    </a>
+                    <a href="https://www.baidu.com" target="_blank" class="quick-item">
+                        <i class="fas fa-search"></i>
+                        <span>百度</span>
+                    </a>
+                    <a href="https://www.zhihu.com" target="_blank" class="quick-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>知乎</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 全球热门网站 -->
+        <section id="global" class="category-section">
+            <div class="container">
+                <div class="category-header">
+                    <h2><i class="fas fa-globe-americas"></i> 全球热门网站</h2>
+                    <p class="category-desc">根据2026年全球网站访问量排名精选</p>
+                </div>
+                <div class="sites-grid">
+                    <!-- 全球网站将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 国内热门网站 -->
+        <section id="domestic" class="category-section">
+            <div class="container">
+                <div class="category-header">
+                    <h2><i class="fas fa-home"></i> 国内精选网站</h2>
+                    <p class="category-desc">国内常用网站与服务平台</p>
+                </div>
+                <div class="sites-grid">
+                    <!-- 国内网站将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- AI工具网站 -->
+        <section id="ai" class="category-section">
+            <div class="container">
+                <div class="category-header">
+                    <h2><i class="fas fa-brain"></i> AI工具与平台</h2>
+                    <p class="category-desc">人工智能与生成式AI工具</p>
+                </div>
+                <div class="sites-grid">
+                    <!-- AI网站将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 实用工具 -->
+        <section id="tools" class="category-section">
+            <div class="container">
+                <div class="category-header">
+                    <h2><i class="fas fa-wrench"></i> 实用工具网站</h2>
+                    <p class="category-desc">开发、设计、办公与效率工具</p>
+                </div>
+                <div class="sites-grid">
+                    <!-- 工具网站将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 每日必看 -->
+        <section id="daily" class="category-section">
+            <div class="container">
+                <div class="category-header">
+                    <h2><i class="fas fa-newspaper"></i> 资讯与媒体</h2>
+                    <p class="category-desc">每日资讯、新闻与学习资源</p>
+                </div>
+                <div class="sites-grid">
+                    <!-- 资讯网站将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 统计数据展示 -->
+        <section class="stats-section">
+            <div class="container">
+                <h2><i class="fas fa-chart-line"></i> 2026年网站流量数据</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>全球第一</h3>
+                        <p class="stat-number">1117.5亿</p>
+                        <p class="stat-desc">Google 月访问量</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>视频平台</h3>
+                        <p class="stat-number">544亿</p>
+                        <p class="stat-desc">YouTube 月访问量</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>AI崛起</h3>
+                        <p class="stat-number">Top 5</p>
+                        <p class="stat-desc">ChatGPT 全球排名</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>国内流量</h3>
+                        <p class="stat-number">3.1亿</p>
+                        <p class="stat-desc">Google中国区月访问量</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-compass"></i> 文思导航</h3>
+                    <p>收录全球与国内热门网站，提供便捷的导航服务。</p>
+                    <p>数据来源：Semrush, Similarweb, Tabpear等权威数据统计。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>网站分类</h3>
+                    <ul>
+                        <li><a href="#global">全球热门</a></li>
+                        <li><a href="#domestic">国内精选</a></li>
+                        <li><a href="#ai">AI工具</a></li>
+                        <li><a href="#tools">实用工具</a></li>
+                        <li><a href="#daily">每日必看</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系与反馈</h3>
+                    <p>如有网站收录建议或问题反馈，请联系我们。</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fas fa-envelope"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-weibo"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 文思导航. 本网站仅供学习参考使用。</p>
+                <p>所有网站链接均指向第三方网站，使用前请确认网站安全性。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" title="回到顶部">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
