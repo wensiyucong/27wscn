@@ -2,210 +2,116 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文思导航 - 全球与国内热门网站集合</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>文思导航 - 炫酷网站导航</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- 头部导航 -->
-    <header>
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="logo">
-                    <h1><i class="fas fa-compass"></i> 文思导航</h1>
-                    <p class="tagline">全球视野，本土精选</p>
-                </div>
-                <div class="nav-links">
-                    <a href="#global" class="active"><i class="fas fa-globe"></i> 全球热门</a>
-                    <a href="#domestic"><i class="fas fa-flag"></i> 国内精选</a>
-                    <a href="#ai"><i class="fas fa-robot"></i> AI工具</a>
-                    <a href="#tools"><i class="fas fa-tools"></i> 实用工具</a>
-                    <a href="#daily"><i class="fas fa-calendar-day"></i> 每日必看</a>
-                </div>
-                <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="搜索网站或关键词...">
-                    <button id="searchBtn"><i class="fas fa-search"></i></button>
-                </div>
-                <button class="mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
+
+    <!-- 粒子背景容器 -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- 扫光效果 -->
+    <div class="shine-effect"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-compass"></i>
+                <h1>文思导航</h1>
+                <span class="version">v2.0</span>
             </div>
+            <div class="header-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="搜索网站或分类...">
+                    <div class="search-results" id="search-results"></div>
+                </div>
+                <div class="theme-toggle">
+                    <span class="theme-text" id="theme-text">浅色模式</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="theme-switch">
+                        <label for="theme-switch" class="toggle-slider">
+                            <span class="toggle-icon sun"><i class="fas fa-sun"></i></span>
+                            <span class="toggle-icon moon"><i class="fas fa-moon"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 分类标签导航 -->
+        <nav class="categories-nav" id="categories-nav">
+            <!-- 由 JS 动态生成 -->
         </nav>
-    </header>
 
-    <!-- 主要内容区域 -->
-    <main>
-        <!-- 全局搜索和快捷访问 -->
-        <section class="quick-access">
-            <div class="container">
-                <h2><i class="fas fa-bolt"></i> 快捷访问</h2>
-                <div class="quick-grid">
-                    <a href="https://www.google.com" target="_blank" class="quick-item">
-                        <i class="fab fa-google"></i>
-                        <span>Google</span>
+        <!-- 网站展示区域 -->
+        <main class="sites-container" id="sites-container">
+            <!-- 由 JS 动态生成 -->
+        </main>
+
+        <!-- 页脚：左统计 + 中版权 + 右联系方式 -->
+        <footer>
+            <div class="footer-left">
+                <p class="site-count" id="site-count">
+                    <i class="fas fa-globe"></i>
+                    共收录 <strong id="total-sites">0</strong> 个网站
+                </p>
+            </div>
+            <div class="footer-center">
+                <p>© 2025 文思导航 · 探索精彩网络世界</p>
+            </div>
+            <div class="footer-right">
+                <span class="contact-item" title="站长微博">
+                    <a href="https://weibo.com" target="_blank" rel="noopener">
+                        <i class="fab fa-weibo"></i>
                     </a>
-                    <a href="https://www.youtube.com" target="_blank" class="quick-item">
-                        <i class="fab fa-youtube"></i>
-                        <span>YouTube</span>
+                </span>
+                <span class="contact-item" title="点击复制微信号">
+                    <a href="javascript:void(0)" id="contact-wechat">
+                        <i class="fab fa-weixin"></i>
                     </a>
-                    <a href="https://github.com" target="_blank" class="quick-item">
-                        <i class="fab fa-github"></i>
-                        <span>GitHub</span>
+                </span>
+                <span class="contact-item" title="站长QQ">
+                    <a href="https://wpa.qq.com/msgrd?v=3&uin=123456789&site=qq&menu=yes" target="_blank" rel="noopener">
+                        <i class="fab fa-qq"></i>
                     </a>
-                    <a href="https://chat.openai.com" target="_blank" class="quick-item">
-                        <i class="fas fa-robot"></i>
-                        <span>ChatGPT</span>
+                </span>
+                <span class="contact-item" title="发送邮件">
+                    <a href="mailto:admin@wensii.com">
+                        <i class="fas fa-envelope"></i>
                     </a>
-                    <a href="https://www.baidu.com" target="_blank" class="quick-item">
-                        <i class="fas fa-search"></i>
-                        <span>百度</span>
-                    </a>
-                    <a href="https://www.zhihu.com" target="_blank" class="quick-item">
-                        <i class="fas fa-question-circle"></i>
-                        <span>知乎</span>
-                    </a>
-                </div>
+                </span>
+                <span class="contact-divider">|</span>
+                <a href="javascript:void(0)" id="about-link" class="footer-link">关于</a>
+                <a href="javascript:void(0)" id="feedback-link" class="footer-link">反馈</a>
             </div>
-        </section>
+        </footer>
 
-        <!-- 全球热门网站 -->
-        <section id="global" class="category-section">
-            <div class="container">
-                <div class="category-header">
-                    <h2><i class="fas fa-globe-americas"></i> 全球热门网站</h2>
-                    <p class="category-desc">根据2026年全球网站访问量排名精选</p>
-                </div>
-                <div class="sites-grid">
-                    <!-- 全球网站将通过JavaScript动态加载 -->
-                </div>
-            </div>
-        </section>
+    </div>
 
-        <!-- 国内热门网站 -->
-        <section id="domestic" class="category-section">
-            <div class="container">
-                <div class="category-header">
-                    <h2><i class="fas fa-home"></i> 国内精选网站</h2>
-                    <p class="category-desc">国内常用网站与服务平台</p>
-                </div>
-                <div class="sites-grid">
-                    <!-- 国内网站将通过JavaScript动态加载 -->
-                </div>
+    <!-- ===== 微信弹窗 (悬浮层) ===== -->
+    <div id="wechat-modal" class="wechat-modal" style="display:none;">
+        <div class="wechat-modal-card">
+            <button class="wechat-modal-close" id="wechat-modal-close">&times;</button>
+            <h3><i class="fab fa-weixin" style="color:#07c160;"></i> 站长微信</h3>
+            <div class="wechat-qr-wrapper">
+                <!-- 微信二维码占位图 (可替换为真实的二维码图片) -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=wensii_admin" alt="微信二维码" class="wechat-qr-img" id="wechat-qr-img">
             </div>
-        </section>
-
-        <!-- AI工具网站 -->
-        <section id="ai" class="category-section">
-            <div class="container">
-                <div class="category-header">
-                    <h2><i class="fas fa-brain"></i> AI工具与平台</h2>
-                    <p class="category-desc">人工智能与生成式AI工具</p>
-                </div>
-                <div class="sites-grid">
-                    <!-- AI网站将通过JavaScript动态加载 -->
-                </div>
-            </div>
-        </section>
-
-        <!-- 实用工具 -->
-        <section id="tools" class="category-section">
-            <div class="container">
-                <div class="category-header">
-                    <h2><i class="fas fa-wrench"></i> 实用工具网站</h2>
-                    <p class="category-desc">开发、设计、办公与效率工具</p>
-                </div>
-                <div class="sites-grid">
-                    <!-- 工具网站将通过JavaScript动态加载 -->
-                </div>
-            </div>
-        </section>
-
-        <!-- 每日必看 -->
-        <section id="daily" class="category-section">
-            <div class="container">
-                <div class="category-header">
-                    <h2><i class="fas fa-newspaper"></i> 资讯与媒体</h2>
-                    <p class="category-desc">每日资讯、新闻与学习资源</p>
-                </div>
-                <div class="sites-grid">
-                    <!-- 资讯网站将通过JavaScript动态加载 -->
-                </div>
-            </div>
-        </section>
-
-        <!-- 统计数据展示 -->
-        <section class="stats-section">
-            <div class="container">
-                <h2><i class="fas fa-chart-line"></i> 2026年网站流量数据</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>全球第一</h3>
-                        <p class="stat-number">1117.5亿</p>
-                        <p class="stat-desc">Google 月访问量</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>视频平台</h3>
-                        <p class="stat-number">544亿</p>
-                        <p class="stat-desc">YouTube 月访问量</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>AI崛起</h3>
-                        <p class="stat-number">Top 5</p>
-                        <p class="stat-desc">ChatGPT 全球排名</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>国内流量</h3>
-                        <p class="stat-number">3.1亿</p>
-                        <p class="stat-desc">Google中国区月访问量</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- 页脚 -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3><i class="fas fa-compass"></i> 文思导航</h3>
-                    <p>收录全球与国内热门网站，提供便捷的导航服务。</p>
-                    <p>数据来源：Semrush, Similarweb, Tabpear等权威数据统计。</p>
-                </div>
-                <div class="footer-section">
-                    <h3>网站分类</h3>
-                    <ul>
-                        <li><a href="#global">全球热门</a></li>
-                        <li><a href="#domestic">国内精选</a></li>
-                        <li><a href="#ai">AI工具</a></li>
-                        <li><a href="#tools">实用工具</a></li>
-                        <li><a href="#daily">每日必看</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>联系与反馈</h3>
-                    <p>如有网站收录建议或问题反馈，请联系我们。</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fas fa-envelope"></i></a>
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-weibo"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 文思导航. 本网站仅供学习参考使用。</p>
-                <p>所有网站链接均指向第三方网站，使用前请确认网站安全性。</p>
-            </div>
+            <p class="wechat-id-label">微信号：<strong id="wechat-id-display">wensii_admin</strong></p>
+            <p class="wechat-tip">已复制微信号，请打开微信粘贴添加</p>
+            <button class="wechat-copy-btn" id="wechat-copy-btn"><i class="fas fa-copy"></i> 再次复制</button>
         </div>
-    </footer>
+    </div>
 
-    <!-- 回到顶部按钮 -->
-    <button id="backToTop" title="回到顶部">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+    <!-- JS 文件 -->
+    <script src="sites.js"></script>
+    <script src="main.js"></script>
 
-    <script src="script.js"></script>
 </body>
 </html>
