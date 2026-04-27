@@ -1,5 +1,5 @@
 // ============================================================
-// 文思导航 - 主逻辑文件 (main.js)
+// 文思导航 - 主逻辑文件 (main.js) v3.0
 // 优先使用 sites.js 中定义的外部数据 (window.sitesData)，
 // 若不可用则使用内置后备数据 FALLBACK_DATA。
 // ============================================================
@@ -91,15 +91,34 @@
     var sitesContainer = $('sites-container');
     var particlesCanvas = $('particles-canvas');
     var totalSitesEl = $('total-sites');
-    var contactWechat = $('contact-wechat');
+    var cursorGlow = $('cursor-glow');
+
+    // 微信弹窗相关
+    var wechatOverlay = $('wechat-overlay');
     var wechatModal = $('wechat-modal');
-    var wechatModalClose = $('wechat-modal-close');
+    var wechatClose = $('wechat-close');
     var wechatCopyBtn = $('wechat-copy-btn');
+    var wechatToast = $('wechat-toast');
     var wechatIdDisplay = $('wechat-id-display');
+    var contactWechat = $('contact-wechat');
+
+    // 关于/反馈
+    var aboutLink = $('about-link');
+    var feedbackLink = $('feedback-link');
+    var aboutOverlay = $('about-overlay');
+    var aboutClose = $('about-close');
+    var feedbackOverlay = $('feedback-overlay');
+    var feedbackClose = $('feedback-close');
+    var feedbackCopyBtn = $('feedback-copy-btn');
+    var feedbackToast = $('feedback-toast');
+
+    // 微信号
+    var WECHAT_ID = 'wensiyucong';
 
     // ===================== 状态 =====================
     var currentCategory = 'all';
     var allSites = [];
+    var selectedCardId = null;
 
     // 扁平化所有站点
     function flattenSites(data) {
@@ -120,11 +139,12 @@
         }
     }
 
-    // ===================== 粒子背景 =====================
+    // ===================== 粒子背景 + 连线 =====================
     function initParticles() {
         var ctx = particlesCanvas.getContext('2d');
         var particles = [];
         var count = 80;
+        var connectDistance = 150;
 
         function resize() {
             particlesCanvas.width = window.innerWidth;
@@ -139,158 +159,264 @@
                 y: Math.random() * particlesCanvas.height,
                 vx: (Math.random() - 0.5) * 0.6,
                 vy: (Math.random() - 0.5) * 0.6,
-                r: Math.random() * 2.5 + 1,
+                size: Math.random() * 2.5 + 1,
                 alpha: Math.random() * 0.5 + 0.2
             });
         }
 
-        function draw() {
+        function isDark() {
+            return document.body.classList.contains('dark-mode');
+        }
+
+        function getColor() {
+            return isDark() ? 'rgba(129, 140, 248, ' : 'rgba(99, 102, 241, ';
+        }
+
+        function animate() {
             ctx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
-            var color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || '#6366f1';
-            particles.forEach(function (p, idx) {
+
+            var baseColor = getColor();
+
+            // 更新和绘制粒子
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
+
                 if (p.x < 0 || p.x > particlesCanvas.width) p.vx *= -1;
                 if (p.y < 0 || p.y > particlesCanvas.height) p.vy *= -1;
 
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = color;
-                ctx.globalAlpha = p.alpha;
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = baseColor + p.alpha + ')';
                 ctx.fill();
+            }
 
-                // 连线
-                for (var j = idx + 1; j < particles.length; j++) {
-                    var dx = p.x - particles[j].x;
-                    var dy = p.y - particles[j].y;
+            // 粒子连线
+            for (var i = 0; i < particles.length; i++) {
+                for (var j = i + 1; j < particles.length; j++) {
+                    var dx = particles[i].x - particles[j].x;
+                    var dy = particles[i].y - particles[j].y;
                     var dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 120) {
+
+                    if (dist < connectDistance) {
+                        var lineAlpha = (1 - dist / connectDistance) * 0.35;
                         ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
+                        ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = color;
-                        ctx.globalAlpha = (1 - dist / 120) * 0.2;
-                        ctx.lineWidth = 0.6;
+                        ctx.strokeStyle = baseColor + lineAlpha + ')';
+                        ctx.lineWidth = 0.8;
                         ctx.stroke();
                     }
                 }
-            });
-            ctx.globalAlpha = 1;
-            requestAnimationFrame(draw);
+            }
+
+            requestAnimationFrame(animate);
         }
-        draw();
+
+        animate();
     }
 
-    // ===================== 生成分类导航 =====================
+    // ===================== 鼠标跟随光晕 =====================
+    function initCursorGlow() {
+        var glow = cursorGlow;
+        var isDarkMode = document.body.classList.contains('dark-mode');
+
+        document.addEventListener('mousemove', function (e) {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+            if (!glow.classList.contains('active')) {
+                glow.classList.add('active');
+            }
+        });
+
+        document.addEventListener('mouseleave', function () {
+            glow.classList.remove('active');
+        });
+
+        // 主题变化时更新光晕颜色
+        var observer = new MutationObserver(function () {
+            var dark = document.body.classList.contains('dark-mode');
+            if (dark) {
+                glow.style.background = 'radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, transparent 70%)';
+            } else {
+                glow.style.background = 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)';
+            }
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // ===================== 渲染分类导航（含数量） =====================
     function renderCategories() {
         var html = '';
-        // "全部" 按钮
-        html += '<button class="cat-btn active" data-category="all"><i class="fas fa-th-large"></i> 全部</button>';
+
+        // "全部" 标签
+        var totalCount = allSites.length;
+        html += '<div class="category-tab' + (currentCategory === 'all' ? ' active' : '') + '" data-category="all">';
+        html += '<i class="fas fa-th"></i> 全部';
+        html += ' <span class="cat-count">' + totalCount + '</span>';
+        html += '</div>';
+
         SITES_DATA.categories.forEach(function (cat) {
-            html += '<button class="cat-btn" data-category="' + cat.id + '">' +
-                '<i class="' + cat.icon + '"></i> ' + cat.name +
-                '</button>';
+            var isActive = (currentCategory === cat.id);
+            html += '<div class="category-tab' + (isActive ? ' active' : '') + '" data-category="' + cat.id + '">';
+            html += '<i class="' + cat.icon + '"></i> ' + cat.name;
+            html += ' <span class="cat-count">' + cat.sites.length + '</span>';
+            html += '</div>';
         });
+
         categoriesNav.innerHTML = html;
 
-        // 分类点击事件
-        categoriesNav.addEventListener('click', function (e) {
-            var btn = e.target.closest('.cat-btn');
-            if (!btn) return;
-            var catId = btn.getAttribute('data-category');
-            // 更新 active 状态
-            categoriesNav.querySelectorAll('.cat-btn').forEach(function (b) {
-                b.classList.remove('active');
+        // 绑定点击事件
+        categoriesNav.querySelectorAll('.category-tab').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                var cat = this.getAttribute('data-category');
+                currentCategory = cat;
+                renderCategories();
+                renderSites();
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-            btn.classList.add('active');
-            currentCategory = catId;
-            renderSites(catId);
-            // 关闭搜索建议
-            searchResults.classList.remove('active');
-            searchInput.value = '';
         });
     }
 
-    // ===================== 渲染网站卡片 =====================
-    function renderSites(categoryId) {
+    // ===================== 渲染网站卡片（含3D效果、选中状态） =====================
+    function renderSites() {
         var html = '';
-        if (categoryId === 'all') {
-            // 显示所有分类，每个分类带标题
+
+        if (currentCategory === 'all') {
             SITES_DATA.categories.forEach(function (cat) {
-                html += '<div class="category-title"><i class="' + cat.icon + '"></i> ' + cat.name + '</div>';
-                cat.sites.forEach(function (site) {
-                    html += buildSiteCard(site);
-                });
+                html += renderCategorySection(cat);
             });
         } else {
-            // 显示单个分类
-            var cat = SITES_DATA.categories.find(function (c) { return c.id === categoryId; });
-            if (cat) {
-                cat.sites.forEach(function (site) {
-                    html += buildSiteCard(site);
-                });
+            var foundCat = null;
+            SITES_DATA.categories.forEach(function (cat) {
+                if (cat.id === currentCategory) {
+                    foundCat = cat;
+                }
+            });
+            if (foundCat) {
+                html += renderCategorySection(foundCat);
             }
         }
-        if (!html) {
-            html = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无收录</p></div>';
-        }
+
         sitesContainer.innerHTML = html;
 
-        // 为所有卡片添加点击跳转
-        sitesContainer.querySelectorAll('.site-card').forEach(function (card) {
-            card.addEventListener('click', function () {
-                var url = card.getAttribute('data-url');
+        // 绑定卡片事件
+        document.querySelectorAll('.site-card').forEach(function (card) {
+            // 点击选中效果
+            card.addEventListener('click', function (e) {
+                var cardId = this.getAttribute('data-id');
+                if (cardId) {
+                    // 移除其他卡片的选中状态
+                    document.querySelectorAll('.site-card.selected').forEach(function (c) {
+                        c.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedCardId = cardId;
+                }
+                // 打开链接
+                var url = this.getAttribute('data-url');
                 if (url) {
                     window.open(url, '_blank');
                 }
             });
+
+            // 3D 倾斜效果
+            card.addEventListener('mousemove', function (e) {
+                var rect = this.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                var centerX = rect.width / 2;
+                var centerY = rect.height / 2;
+                var rotateX = ((y - centerY) / centerY) * -8;
+                var rotateY = ((x - centerX) / centerX) * 8;
+                this.style.transform =
+                    'perspective(800px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-6px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                if (this.classList.contains('selected')) {
+                    this.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(-4px) scale(1.01)';
+                } else {
+                    this.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
+                }
+            });
         });
+
+        // 恢复选中状态
+        if (selectedCardId) {
+            var selectedEl = document.querySelector('.site-card[data-id="' + selectedCardId + '"]');
+            if (selectedEl) {
+                selectedEl.classList.add('selected');
+            }
+        }
     }
 
-    function buildSiteCard(site) {
-        return '<div class="site-card" data-url="' + site.url + '">' +
-            '<span class="site-category-tag">' + site.category + '</span>' +
-            '<img class="site-icon" src="' + site.icon + '" alt="' + site.name + '" loading="lazy" onerror="this.src=\'data:image/svg+xml,%3Csvg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'48\\\' height=\\\'48\\\' viewBox=\\\'0 0 48 48\\\'%3E%3Crect width=\\\'48\\\' height=\\\'48\\\' fill=\\\'%23e2e8f0\\\' rx=\\\'8\\\'/%3E%3Ctext x=\\\'24\\\' y=\\\'30\\\' text-anchor=\\\'middle\\\' font-size=\\\'20\\\' fill=\\\'%2394a3b8\\\' font-family=\\\'Arial\\\'%3E' + site.name.charAt(0) + '%3C/text%3E%3C/svg%3E\'">' +
-            '<div class="site-name">' + site.name + '</div>' +
-            '<div class="site-desc">' + site.description + '</div>' +
-            '</div>';
+    // 渲染单个分类区块
+    function renderCategorySection(cat) {
+        var html = '<div class="category-section">';
+        html += '<div class="category-section-title">';
+        html += '<i class="' + cat.icon + '"></i> ' + cat.name;
+        html += ' <span class="section-count">' + cat.sites.length + '</span>';
+        html += '</div>';
+        html += '<div class="sites-grid">';
+
+        cat.sites.forEach(function (site) {
+            var isSelected = (selectedCardId == site.id);
+            html += '<div class="site-card' + (isSelected ? ' selected' : '') + '" data-id="' + site.id + '" data-url="' + site.url + '">';
+            html += '<div class="card-glow"></div>';
+            html += '<div class="card-shine"></div>';
+            html += '<img class="card-icon" src="' + site.icon + '" alt="' + site.name + '" loading="lazy" onerror="this.style.display=\'none\'">';
+            html += '<div class="card-name">' + site.name + '</div>';
+            html += '<div class="card-desc">' + site.description + '</div>';
+            html += '</div>';
+        });
+
+        html += '</div>';
+        html += '</div>';
+        return html;
     }
 
     // ===================== 搜索功能 =====================
     function initSearch() {
         searchInput.addEventListener('input', function () {
-            var keyword = this.value.trim().toLowerCase();
-            if (!keyword) {
+            var query = this.value.trim().toLowerCase();
+            if (query.length === 0) {
                 searchResults.classList.remove('active');
                 return;
             }
-            // 搜索站点
-            var results = allSites.filter(function (site) {
-                return site.name.toLowerCase().includes(keyword) ||
-                    site.description.toLowerCase().includes(keyword) ||
-                    site.category.toLowerCase().includes(keyword);
+
+            var results = [];
+            allSites.forEach(function (site) {
+                if (site.name.toLowerCase().includes(query) ||
+                    site.description.toLowerCase().includes(query) ||
+                    site.category.toLowerCase().includes(query)) {
+                    results.push(site);
+                }
             });
-            // 限制最多显示 12 条
-            results = results.slice(0, 12);
+
             if (results.length === 0) {
                 searchResults.classList.remove('active');
                 return;
             }
+
             var html = '';
-            results.forEach(function (site) {
-                html += '<div class="result-item" data-url="' + site.url + '">' +
-                    '<img src="' + site.icon + '" alt="" onerror="this.src=\'data:image/svg+xml,%3Csvg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'24\\\' height=\\\'24\\\' viewBox=\\\'0 0 24 24\\\'%3E%3Crect width=\\\'24\\\' height=\\\'24\\\' fill=\\\'%23e2e8f0\\\' rx=\\\'4\\\'/%3E%3Ctext x=\\\'12\\\' y=\\\'16\\\' text-anchor=\\\'middle\\\' font-size=\\\'12\\\' fill=\\\'%2394a3b8\\\' font-family=\\\'Arial\\\'%3E' + site.name.charAt(0) + '%3C/text%3E%3C/svg%3E\'">' +
-                    '<div class="result-info">' +
-                    '<div class="result-name">' + site.name + '</div>' +
-                    '<div class="result-desc">' + site.description + '</div>' +
-                    '</div>' +
-                    '<span class="result-category">' + site.category + '</span>' +
-                    '</div>';
+            results.slice(0, 8).forEach(function (site) {
+                html += '<div class="result-item" data-url="' + site.url + '">';
+                html += '<img src="' + site.icon + '" alt="" onerror="this.style.display=\'none\'">';
+                html += '<div class="result-info">';
+                html += '<div class="result-name">' + site.name + '</div>';
+                html += '<div class="result-desc">' + site.description + '</div>';
+                html += '</div>';
+                html += '<span class="result-category">' + site.category + '</span>';
+                html += '</div>';
             });
+
             searchResults.innerHTML = html;
             searchResults.classList.add('active');
 
-            // 点击搜索项跳转
+            // 点击搜索结果
             searchResults.querySelectorAll('.result-item').forEach(function (item) {
                 item.addEventListener('click', function () {
                     var url = this.getAttribute('data-url');
@@ -303,34 +429,19 @@
             });
         });
 
-        // 点击外部关闭搜索建议
+        // 点击外部关闭搜索结果
         document.addEventListener('click', function (e) {
-            if (!searchInput.parentElement.contains(e.target)) {
+            if (!e.target.closest('.search-box')) {
                 searchResults.classList.remove('active');
-            }
-        });
-
-        // 回车直接跳转第一个结果或搜索
-        searchInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                var first = searchResults.querySelector('.result-item');
-                if (first) {
-                    var url = first.getAttribute('data-url');
-                    if (url) {
-                        window.open(url, '_blank');
-                    }
-                    searchResults.classList.remove('active');
-                    searchInput.value = '';
-                }
             }
         });
     }
 
     // ===================== 主题切换 =====================
     function initTheme() {
-        // 读取本地存储
-        var dark = localStorage.getItem('wensii-dark') === 'true';
-        if (dark) {
+        // 检查本地存储
+        var savedTheme = localStorage.getItem('wensii-theme');
+        if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
             themeSwitch.checked = true;
             themeText.textContent = '深色模式';
@@ -340,146 +451,144 @@
             if (this.checked) {
                 document.body.classList.add('dark-mode');
                 themeText.textContent = '深色模式';
-                localStorage.setItem('wensii-dark', 'true');
+                localStorage.setItem('wensii-theme', 'dark');
             } else {
                 document.body.classList.remove('dark-mode');
                 themeText.textContent = '浅色模式';
-                localStorage.setItem('wensii-dark', 'false');
+                localStorage.setItem('wensii-theme', 'light');
             }
         });
     }
 
-    // ===================== 微信弹窗功能 =====================
-    var WECHAT_ID = 'wensii_admin'; // 站长微信号
-
+    // ===================== 微信弹窗逻辑 =====================
     function initWechat() {
+        // 显示微信号
+        wechatIdDisplay.textContent = WECHAT_ID;
+
         // 点击微信图标
         contactWechat.addEventListener('click', function (e) {
             e.preventDefault();
             // 复制微信号
             copyToClipboard(WECHAT_ID);
             // 显示弹窗
-            showWechatModal();
+            wechatOverlay.classList.add('active');
+            // 显示复制成功提示
+            showWechatToast();
         });
 
-        // 关闭弹窗 - 点击关闭按钮
-        wechatModalClose.addEventListener('click', function () {
-            hideWechatModal();
+        // 关闭弹窗
+        wechatClose.addEventListener('click', function () {
+            wechatOverlay.classList.remove('active');
+            wechatToast.classList.remove('show');
         });
 
-        // 关闭弹窗 - 点击遮罩
-        wechatModal.addEventListener('click', function (e) {
-            if (e.target === wechatModal) {
-                hideWechatModal();
+        wechatOverlay.addEventListener('click', function (e) {
+            if (e.target === this) {
+                wechatOverlay.classList.remove('active');
+                wechatToast.classList.remove('show');
             }
         });
 
-        // 弹窗内 "再次复制" 按钮
+        // 复制按钮
         wechatCopyBtn.addEventListener('click', function () {
             copyToClipboard(WECHAT_ID);
-            // 视觉反馈
-            var originalText = wechatCopyBtn.innerHTML;
-            wechatCopyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
-            setTimeout(function () {
-                wechatCopyBtn.innerHTML = originalText;
-            }, 1500);
+            showWechatToast();
         });
 
-        // 显示微信号
-        if (wechatIdDisplay) {
-            wechatIdDisplay.textContent = WECHAT_ID;
+        function showWechatToast() {
+            wechatToast.classList.remove('show');
+            // 触发重排以重启动画
+            void wechatToast.offsetWidth;
+            wechatToast.classList.add('show');
+            setTimeout(function () {
+                wechatToast.classList.remove('show');
+            }, 2500);
         }
     }
 
-    function showWechatModal() {
-        wechatModal.style.display = 'flex';
-        // 更新二维码 (确保微信号是最新的)
-        var qrImg = document.getElementById('wechat-qr-img');
-        if (qrImg) {
-            // 使用 QR 生成 API，实际可替换为静态图片
-            qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(WECHAT_ID);
-        }
+    // ===================== 关于弹窗 =====================
+    function initAbout() {
+        aboutLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            aboutOverlay.classList.add('active');
+        });
+
+        aboutClose.addEventListener('click', function () {
+            aboutOverlay.classList.remove('active');
+        });
+
+        aboutOverlay.addEventListener('click', function (e) {
+            if (e.target === this) {
+                aboutOverlay.classList.remove('active');
+            }
+        });
     }
 
-    function hideWechatModal() {
-        wechatModal.style.display = 'none';
+    // ===================== 反馈弹窗 =====================
+    function initFeedback() {
+        feedbackLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            feedbackOverlay.classList.add('active');
+        });
+
+        feedbackClose.addEventListener('click', function () {
+            feedbackOverlay.classList.remove('active');
+            feedbackToast.classList.remove('show');
+        });
+
+        feedbackOverlay.addEventListener('click', function (e) {
+            if (e.target === this) {
+                feedbackOverlay.classList.remove('active');
+                feedbackToast.classList.remove('show');
+            }
+        });
+
+        feedbackCopyBtn.addEventListener('click', function () {
+            copyToClipboard('ccw@27ws.cn');
+            feedbackToast.classList.remove('show');
+            void feedbackToast.offsetWidth;
+            feedbackToast.classList.add('show');
+            setTimeout(function () {
+                feedbackToast.classList.remove('show');
+            }, 2500);
+        });
     }
 
-    // 复制到剪贴板
+    // ===================== 通用复制工具 =====================
     function copyToClipboard(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).catch(function () {
-                fallbackCopy(text);
-            });
-        } else {
-            fallbackCopy(text);
-        }
-    }
-
-    function fallbackCopy(text) {
         var textarea = document.createElement('textarea');
         textarea.value = text;
         textarea.style.position = 'fixed';
         textarea.style.opacity = '0';
-        textarea.style.left = '-9999px';
         document.body.appendChild(textarea);
         textarea.select();
         try {
             document.execCommand('copy');
         } catch (e) {
-            // 忽略
+            // 降级方案
+            navigator.clipboard && navigator.clipboard.writeText(text);
         }
         document.body.removeChild(textarea);
     }
 
-    // ===================== 关于 / 反馈 =====================
-    function initFooterLinks() {
-        var aboutLink = $('about-link');
-        var feedbackLink = $('feedback-link');
-
-        aboutLink.addEventListener('click', function () {
-            alert('文思导航 v2.0\n\n探索精彩网络世界\n收录优质网站，助您高效上网。');
-        });
-
-        feedbackLink.addEventListener('click', function () {
-            window.open('mailto:admin@wensii.com?subject=文思导航反馈', '_blank');
-        });
-    }
-
-    // ===================== 初始化 =====================
+    // ===================== 初始化所有功能 =====================
     function init() {
-        // 更新网站计数
         updateSiteCount();
-
-        // 粒子背景
-        if (particlesCanvas) {
-            initParticles();
-        }
-
-        // 渲染分类导航
         renderCategories();
-
-        // 渲染全部站点
-        renderSites('all');
-
-        // 搜索
+        renderSites();
+        initParticles();
+        initCursorGlow();
         initSearch();
-
-        // 主题
         initTheme();
-
-        // 微信弹窗
         initWechat();
+        initAbout();
+        initFeedback();
 
-        // 页脚链接
-        initFooterLinks();
-
-        // ESC 关闭弹窗
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                hideWechatModal();
-            }
-        });
+        // 版本号更新
+        var versionEl = document.querySelector('.version');
+        if (versionEl) {
+            versionEl.textContent = 'v3.0';
+        }
     }
 
     // DOM 就绪后启动

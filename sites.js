@@ -270,6 +270,13 @@ var sitesData = {
             icon: "https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico",
             description: "腾讯即时通信服务",
             category: "社交"
+        }, {
+            id: 506,
+            name: "微博",
+            url: "https://weibo.com",
+            icon: "https://weibo.com/favicon.ico",
+            description: "中国最大社交微博平台",
+            category: "社交"
         }]
     }, {
         id: "entertainment",
@@ -350,46 +357,6 @@ var sitesData = {
             icon: "https://www.meituan.com/favicon.ico",
             description: "生活服务电子商务平台",
             category: "购物"
-        }]
-    }, {
-        id: "video",
-        name: "视频",
-        icon: "fas fa-video",
-        sites: [{
-            id: 801,
-            name: "腾讯视频",
-            url: "https://v.qq.com",
-            icon: "https://v.qq.com/favicon.ico",
-            description: "国内领先的在线视频平台",
-            category: "视频"
-        }, {
-            id: 802,
-            name: "爱奇艺",
-            url: "https://www.iqiyi.com",
-            icon: "https://www.iqiyi.com/favicon.ico",
-            description: "高品质视频娱乐平台",
-            category: "视频"
-        }, {
-            id: 803,
-            name: "优酷",
-            url: "https://www.youku.com",
-            icon: "https://www.youku.com/favicon.ico",
-            description: "中国领先的在线视频平台",
-            category: "视频"
-        }, {
-            id: 804,
-            name: "芒果TV",
-            url: "https://www.mgtv.com",
-            icon: "https://www.mgtv.com/favicon.ico",
-            description: "湖南卫视官方视频平台",
-            category: "视频"
-        }, {
-            id: 805,
-            name: "抖音",
-            url: "https://www.douyin.com",
-            icon: "https://www.douyin.com/favicon.ico",
-            description: "短视频社交平台",
-            category: "视频"
         }]
     }]
 };
